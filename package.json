@@ -1,0 +1,10 @@
+{
+  "name": "algorithms",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "jest --watchAll"
+  },
+  "dependencies": {
+    "jest": "^26.0.0"
+  }
+}
