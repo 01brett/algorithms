@@ -1,5 +1,5 @@
 // @ts-nocheck
-test('nth fibonacci number', () => {
+test("nth fibonacci number", () => {
   function fn(num) {
     const fib = [0, 1]
     if (num > 2) {
@@ -14,7 +14,7 @@ test('nth fibonacci number', () => {
   expect(fn(10)).toBe(55)
 })
 
-test('rolling sum of an array of numbers', () => {
+test("rolling sum of an array of numbers", () => {
   function fn(arr) {
     const sums = []
 
@@ -42,7 +42,7 @@ test('rolling sum of an array of numbers', () => {
   ])
 })
 
-test('sum of array of numbers', () => {
+test("sum of array of numbers", () => {
   function fn(arr) {
     return arr.reduce((acc, num) => acc + num, 0)
   }
@@ -50,7 +50,7 @@ test('sum of array of numbers', () => {
   expect(fn([1, 2, 3, 4, 5])).toBe(15)
 })
 
-test('get intergers in a range', () => {
+test("get intergers in a range", () => {
   // non-inclusive
   function fn(startNum, endNum) {
     const integers = []
@@ -64,10 +64,9 @@ test('get intergers in a range', () => {
   expect(fn(0, 14)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
 })
 
-it('checks for cycles in directed graph', () => {
+it("checks for cycles in directed graph", () => {
   function fn(pairs) {
-    // make an adjacency list
-    const graph = pairs.reduce((acc, cv) => {
+    const adjList = pairs.reduce((acc, cv) => {
       const parent = cv[0]
       const child = cv[1]
       if (!acc[parent]) {
@@ -77,44 +76,47 @@ it('checks for cycles in directed graph', () => {
       return acc
     }, {})
 
-    // do a dfs
-    const stack = []
-    const visited = {}
+    let stack = []
+    const visited = new Set()
 
     stack.push(pairs[0][0]) // push the first parent on stack
 
     while (stack.length > 0) {
       const node = stack.pop()
 
-      if (visited[node] && stack.includes(node)) {
+      if (visited.has(node) && stack.includes(node)) {
         // we found a cycle
-        return 1
+        return true
       }
 
-      if (!visited[node]) {
-        visited[node] = true
+      if (!visited.has(node)) {
+        visited.add(node)
       }
 
-      const children = graph[node] // get the child node array for the node
+      const children = adjList[node] // get the child node array for the node
 
-      if (children !== undefined && children.length > 0) {
-        children.forEach((child) => {
-          stack.push(child)
-        })
-      }
+      stack = stack.concat(children || [])
     }
 
-    const graphLength = Object.keys(graph).length
-    const visitedLength = Object.keys(visited).length
+    const adjListLength = Object.keys(adjList).length
 
-    if (graphLength > visitedLength) {
-      // this means the graph is messed up as we didn't visit everything
+    if (adjListLength > visited.size) {
+      // something is messed up
       return -1
     }
 
-    // else return 0 (no cycle)
-    return 0
+    return false
   }
+
+  //   Notes
+  // - `visited` could be a Set
+  //   - In fact, I think `stack` could be as well, if you rely on
+  //     the fact that JS sets maintain insertion order when iterated
+  // - the `&& children.length > 0` check is unnecessary, a loop over an empty array is a no-op anyway
+  // - small optimization: instead of a forEach, you could reassign `stack` to be `stack.concat(children)`
+  //   - `stack` would need to be a `let`, and this wouldn't work
+  //      if `stack` needed to be mutated out - of - scope and not returned
+
   expect(
     fn([
       [1, 2],
@@ -127,7 +129,7 @@ it('checks for cycles in directed graph', () => {
       [5, 6],
       [6, 2]
     ])
-  ).toBe(1)
+  ).toBe(true)
   expect(
     fn([
       [1, 2],
@@ -139,5 +141,5 @@ it('checks for cycles in directed graph', () => {
       [4, 6],
       [5, 6]
     ])
-  ).toBe(0)
+  ).toBe(false)
 })
